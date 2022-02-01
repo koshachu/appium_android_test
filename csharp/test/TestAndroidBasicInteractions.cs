@@ -13,6 +13,11 @@ namespace AppiumDotNetSamples
     [TestFixture()]
     public class AndroidBasicInteractionsTest
     {
+        private const string searchBoxElementId = "com.google.android.apps.maps:id/search_omnibox_text_box";
+        private const string searchBoxEditElementId = "com.google.android.apps.maps:id/search_omnibox_edit_text";
+        private const string placeToSearchForText = "Flinders Street";
+        private const string searchResultClassName = "android.widget.TextView";
+        private const string expectedLocationtoFind = "Melbourne VIC, Australia";
         private AndroidDriver<AndroidElement> driver;
 
         [SetUp()]
@@ -50,18 +55,28 @@ namespace AppiumDotNetSamples
         [Test()]
         public void TestShouldSendKetsToSearchBoxThenCheckTheValue()
         {
-            AndroidElement searchBoxElement = driver.FindElementById("com.google.android.apps.maps:id/search_omnibox_text_box");
-            searchBoxElement.Click();
-            
-            AndroidElement searchEditBox = driver.FindElementById("com.google.android.apps.maps:id/search_omnibox_edit_text");
-            searchEditBox.SendKeys("Flinders Street");
+            AndroidElement searchEditBox = TapAndTypeText(placeToSearchForText);
+            ReadOnlyCollection<AndroidElement> searchResultsTexts = getSearchResults();
 
-            ReadOnlyCollection<AndroidElement> searchResultsText = driver.FindElementsByClassName("android.widget.TextView");
-            
-            Assert.That(searchEditBox.Text, Is.EqualTo("Flinders Street"));
-            Assert.That(searchResultsText, Has.One.Items.With.Property(nameof(AndroidElement.Text)).EqualTo("Melbourne VIC, Australia"));
+            Assert.That(searchEditBox.Text, Is.EqualTo(placeToSearchForText));
+            Assert.That(searchResultsTexts, Has.One.Items.With.Property(nameof(AndroidElement.Text)).EqualTo(expectedLocationtoFind));
             //ReadOnlyCollection<AndroidElement> searchResults = driver.FindElementsByClassName("android.widget.TextView");
             //Assert.AreEqual("Flinders Street", searchResults.Text);
+        }
+
+        private ReadOnlyCollection<AndroidElement> getSearchResults()
+        {
+            return driver.FindElementsByClassName(searchResultClassName);
+        }
+
+        private AndroidElement TapAndTypeText(string textToType)
+        {
+            AndroidElement searchBoxElement = driver.FindElementById(searchBoxElementId);
+            searchBoxElement.Click();
+
+            AndroidElement searchEditBox = driver.FindElementById(searchBoxEditElementId);
+            searchEditBox.SendKeys(textToType);
+            return searchEditBox;
         }
 
         [Test()]
