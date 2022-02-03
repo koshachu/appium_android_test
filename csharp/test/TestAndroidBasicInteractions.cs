@@ -7,16 +7,15 @@ using OpenQA.Selenium.Remote;
 using System;
 using AppiumDotNetSamples.Helper;
 using System.Collections.ObjectModel;
+using AppiumDotNetSamples.PageObjects;
 
 namespace AppiumDotNetSamples
 {
     [TestFixture()]
     public class AndroidBasicInteractionsTest
     {
-        private const string searchBoxElementId = "com.google.android.apps.maps:id/search_omnibox_text_box";
-        private const string searchBoxEditElementId = "com.google.android.apps.maps:id/search_omnibox_edit_text";
+        
         private const string placeToSearchForText = "Flinders Street";
-        private const string searchResultClassName = "android.widget.TextView";
         private const string expectedLocationtoFind = "Melbourne VIC, Australia";
         private AndroidDriver<AndroidElement> driver;
 
@@ -55,8 +54,10 @@ namespace AppiumDotNetSamples
         [Test()]
         public void TestShouldSendKetsToSearchBoxThenCheckTheValue()
         {
-            AndroidElement searchEditBox = TapAndTypeText(placeToSearchForText);
-            ReadOnlyCollection<AndroidElement> searchResultsTexts = getSearchResults();
+            var initialScreenPage = new InitialScreenPage(driver);
+
+            AndroidElement searchEditBox = initialScreenPage.TapAndTypeText(placeToSearchForText);
+            ReadOnlyCollection<AndroidElement> searchResultsTexts = initialScreenPage.GetSearchResults();
 
             Assert.That(searchEditBox.Text, Is.EqualTo(placeToSearchForText));
             Assert.That(searchResultsTexts, Has.One.Items.With.Property(nameof(AndroidElement.Text)).EqualTo(expectedLocationtoFind));
@@ -64,20 +65,9 @@ namespace AppiumDotNetSamples
             //Assert.AreEqual("Flinders Street", searchResults.Text);
         }
 
-        private ReadOnlyCollection<AndroidElement> getSearchResults()
-        {
-            return driver.FindElementsByClassName(searchResultClassName);
-        }
+       
 
-        private AndroidElement TapAndTypeText(string textToType)
-        {
-            AndroidElement searchBoxElement = driver.FindElementById(searchBoxElementId);
-            searchBoxElement.Click();
-
-            AndroidElement searchEditBox = driver.FindElementById(searchBoxEditElementId);
-            searchEditBox.SendKeys(textToType);
-            return searchEditBox;
-        }
+       
 
         [Test()]
         [Ignore("do not exeCUTE")]
