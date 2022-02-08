@@ -22,7 +22,15 @@ namespace AppiumDotNetSamples
         [SetUp()]
         public void BeforeAll()
         {
-            DesiredCapabilities capabilities = new DesiredCapabilities();            
+            InitializeDriver();
+
+            var signInPage = new SignInPage(driver);
+            signInPage.SkipSignIn();
+        }
+
+        private void InitializeDriver()
+        {
+            DesiredCapabilities capabilities = new DesiredCapabilities();
             capabilities.SetCapability(MobileCapabilityType.PlatformName, "Android");
             capabilities.SetCapability(MobileCapabilityType.PlatformVersion, "11");
             capabilities.SetCapability(MobileCapabilityType.AutomationName, "UIAutomator2");
@@ -32,17 +40,6 @@ namespace AppiumDotNetSamples
 
             driver = new AndroidDriver<AndroidElement>(Env.ServerUri(), capabilities, Env.INIT_TIMEOUT_SEC);
             driver.Manage().Timeouts().ImplicitWait = Env.IMPLICIT_TIMEOUT_SEC;
-
-            try
-            {
-                AndroidElement skipButton = driver.FindElementByClassName("android.widget.Button");
-                skipButton.Click();
-            }
-            catch(NoSuchElementException exception)
-            {
-                Console.WriteLine("Skip button not found. Proceed with execution");
-            }
-            
         }
 
         [TearDown()]
